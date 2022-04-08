@@ -113,10 +113,10 @@ func resourceAciL3outBGPProtocolProfileCreate(ctx context.Context, d *schema.Res
 	} else {
 		bgpProtPAttr.Annotation = "{}"
 	}
-	if NameAlias, ok := d.GetOk("name_alias"); ok {
-		bgpProtPAttr.NameAlias = NameAlias.(string)
-	}
-	bgpProtP := models.NewL3outBGPProtocolProfile(fmt.Sprintf("protp"), LogicalNodeProfileDn, bgpProtPAttr)
+	// if NameAlias, ok := d.GetOk("name_alias"); ok {
+	// 	bgpProtPAttr.NameAlias = NameAlias.(string)
+	// }
+	bgpProtP := models.NewL3outBGPProtocolProfile(fmt.Sprintf("protp"), LogicalNodeProfileDn, "", bgpProtPAttr)
 
 	err := aciClient.Save(bgpProtP)
 	if err != nil {
@@ -165,10 +165,10 @@ func resourceAciL3outBGPProtocolProfileUpdate(ctx context.Context, d *schema.Res
 	} else {
 		bgpProtPAttr.Annotation = "{}"
 	}
-	if NameAlias, ok := d.GetOk("name_alias"); ok {
-		bgpProtPAttr.NameAlias = NameAlias.(string)
-	}
-	bgpProtP := models.NewL3outBGPProtocolProfile(fmt.Sprintf("protp"), LogicalNodeProfileDn, bgpProtPAttr)
+	// if NameAlias, ok := d.GetOk("name_alias"); ok {
+	// 	bgpProtPAttr.NameAlias = NameAlias.(string)
+	// }
+	bgpProtP := models.NewL3outBGPProtocolProfile(fmt.Sprintf("protp"), LogicalNodeProfileDn, "", bgpProtPAttr)
 
 	bgpProtP.Status = "modified"
 
