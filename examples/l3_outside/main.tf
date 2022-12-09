@@ -46,15 +46,15 @@ resource "aci_l3_outside" "foo_l3_outside" {
   enforce_rtctrl = "export,import"
   target_dscp    = "unspecified"
 
-  // Relation to Route Control for Dampening
+  // Relation to Route Control for Dampening - Input Set should be in the reverse order based on "af" value
   relation_l3ext_rs_dampening_pol {
     tn_rtctrl_profile_dn = data.aci_route_control_profile.shared_route_control_profile.id
-    af                   = "ipv4-ucast"
+    af                   = "ipv6-ucast"
   }
 
   relation_l3ext_rs_dampening_pol {
     tn_rtctrl_profile_dn = data.aci_route_control_profile.shared_route_control_profile.id
-    af                   = "ipv6-ucast"
+    af                   = "ipv4-ucast"
   }
 
   // Target VRF object should belong to the parent tenant or be a shared object.

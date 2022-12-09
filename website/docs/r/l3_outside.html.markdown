@@ -29,15 +29,15 @@ resource "aci_l3_outside" "foo_l3_outside" {
   enforce_rtctrl = "export,import"
   target_dscp    = "unspecified"
 
-  // Relation to Route Control for Dampening
+  // Relation to Route Control for Dampening - Input Set should be in the reverse order based on "af" value
   relation_l3ext_rs_dampening_pol {
     tn_rtctrl_profile_dn = data.aci_route_control_profile.shared_route_control_profile.id
-    af                   = "ipv4-ucast"
+    af                   = "ipv6-ucast"
   }
 
   relation_l3ext_rs_dampening_pol {
     tn_rtctrl_profile_dn = data.aci_route_control_profile.shared_route_control_profile.id
-    af                   = "ipv6-ucast"
+    af                   = "ipv4-ucast"
   }
 
   // Target VRF object should belong to the parent tenant or be a shared object.
@@ -60,7 +60,7 @@ resource "aci_l3_outside" "foo_l3_outside" {
 * `enforce_rtctrl` - (Optional) Enforce route control type. Allowed values are "import" and "export". Default is "export". (Multiple Comma-Delimited values are allowed. E.g., "export,import"). Type - String.
 * `name_alias` - (Optional) Name alias of the L3 Outside object.
 * `target_dscp` - (Optional) The target differentiated services code point (DSCP) of the path attached to the L3 Outside object. Allowed values are "CS0", "CS1", "AF11", "AF12", "AF13", "CS2", "AF21", "AF22", "AF23", "CS3", "AF31", "AF32", "AF33", "CS4", "AF41", "AF42", "AF43", "CS5", "VA", "EF", "CS6", "CS7" and "unspecified". Default is "unspecified".
-* `relation_l3ext_rs_dampening_pol` - (Optional) Relation to class rtctrlProfile. Cardinality - N_TO_M. Type - Set of Map.
+* `relation_l3ext_rs_dampening_pol` - (Optional) Relation to class rtctrlProfile. Input Set should be in the reverse order based on "af" value. Cardinality - N_TO_M. Type - Set of Map.
 * `relation_l3ext_rs_ectx` - (Optional) Relation to class fvCtx. Target VRF object should belong to the parent tenant or be a shared object. Cardinality - N_TO_ONE. Type - String.
 * `relation_l3ext_rs_out_to_bd_public_subnet_holder` - (Optional) Relation to class fvBDPublicSubnetHolder. Create operation not allowed to the MO: l3extRsOutToBDPublicSubnetHolder. Cardinality - N_TO_M. Type - Set of String.
 * `relation_l3ext_rs_interleak_pol` - (Optional) Relation to class rtctrlProfile. Interleak Policy object should belong to the parent tenant or be a shared object. Cardinality - N_TO_ONE. Type - String.
