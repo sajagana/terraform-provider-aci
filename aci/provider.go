@@ -329,6 +329,7 @@ func Provider() *schema.Provider {
 			"aci_cloud_template_region_detail":             resourceAciCloudTemplateRegion(),
 			"aci_pim_interface_policy":                     resourceAciPIMInterfacePolicy(),
 			"aci_igmp_interface_policy":                    resourceAciIGMPInterfacePolicy(),
+			"aci_role_based_access_control":                resourceAciAnnotationToCaptureRbacInfo(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -579,6 +580,7 @@ func Provider() *schema.Provider {
 			"aci_cloud_template_region_detail":             dataSourceAciCloudTemplateRegion(),
 			"aci_pim_interface_policy":                     dataSourceAciPIMInterfacePolicy(),
 			"aci_igmp_interface_policy":                    dataSourceAciIGMPInterfacePolicy(),
+			"aci_role_based_access_control":                dataSourceAciAnnotationToCaptureRbacInfo(),
 		},
 
 		ConfigureFunc: configureClient,
