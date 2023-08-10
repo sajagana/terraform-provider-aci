@@ -23,7 +23,7 @@ func dataSourceAciAnnotationToCaptureRbacInfo() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"domain": {
+			"aaa_domain_dn": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -33,9 +33,9 @@ func dataSourceAciAnnotationToCaptureRbacInfo() *schema.Resource {
 
 func dataSourceAciAnnotationToCaptureRbacInfoRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	aciClient := m.(*client.Client)
-	domain := d.Get("domain").(string)
+	aaaDomainDn := GetMOName(d.Get("aaa_domain_dn").(string))
 	parentDn := d.Get("parent_dn").(string)
-	rn := fmt.Sprintf(models.RnAaaRbacAnnotation, domain)
+	rn := fmt.Sprintf(models.RnAaaRbacAnnotation, aaaDomainDn)
 	dn := fmt.Sprintf("%s/%s", parentDn, rn)
 
 	aaaRbacAnnotation, err := getRemoteAnnotationToCaptureRbacInfo(aciClient, dn)

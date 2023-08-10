@@ -34,7 +34,7 @@ func resourceAciAnnotationToCaptureRbacInfo() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"domain": {
+			"aaa_domain_dn": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -50,7 +50,7 @@ func getRemoteAnnotationToCaptureRbacInfo(client *client.Client, dn string) (*mo
 	}
 	aaaRbacAnnotation := models.AnnotationToCaptureRbacInfoFromContainer(aaaRbacAnnotationCont)
 	if aaaRbacAnnotation.DistinguishedName == "" {
-		return nil, fmt.Errorf("Annotation To Capture RBAC Info %s not found", dn)
+		return nil, fmt.Errorf("AAA Domain Annotation %s not found", dn)
 	}
 	return aaaRbacAnnotation, nil
 }
@@ -68,7 +68,7 @@ func setAnnotationToCaptureRbacInfoAttributes(aaaRbacAnnotation *models.Annotati
 		d.Set("parent_dn", GetParentDn(aaaRbacAnnotation.DistinguishedName, fmt.Sprintf("/"+models.RnAaaRbacAnnotation, aaaRbacAnnotationMap["name"])))
 	}
 	d.Set("child_regex", aaaRbacAnnotationMap["childRegex"])
-	d.Set("domain", aaaRbacAnnotationMap["domain"])
+	d.Set("aaa_domain_dn", aaaRbacAnnotationMap["domain"])
 	return d, nil
 }
 
@@ -90,9 +90,8 @@ func resourceAciAnnotationToCaptureRbacInfoImport(d *schema.ResourceData, m inte
 }
 
 func resourceAciAnnotationToCaptureRbacInfoCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Annotation To Capture RBAC Info: Beginning Creation")
+	log.Printf("[DEBUG] AAA Domain Annotation Info: Beginning Creation")
 	aciClient := m.(*client.Client)
-	domain := d.Get("domain").(string)
 	parentDn := d.Get("parent_dn").(string)
 
 	aaaRbacAnnotationAttr := models.AnnotationToCaptureRbacInfoAttributes{}
@@ -101,10 +100,10 @@ func resourceAciAnnotationToCaptureRbacInfoCreate(ctx context.Context, d *schema
 		aaaRbacAnnotationAttr.ChildRegex = ChildRegex.(string)
 	}
 
-	if Domain, ok := d.GetOk("domain"); ok {
-		aaaRbacAnnotationAttr.Domain = Domain.(string)
+	if Domain, ok := d.GetOk("aaa_domain_dn"); ok {
+		aaaRbacAnnotationAttr.Domain = GetMOName(Domain.(string))
 	}
-	aaaRbacAnnotation := models.NewAnnotationToCaptureRbacInfo(fmt.Sprintf(models.RnAaaRbacAnnotation, domain), parentDn, aaaRbacAnnotationAttr)
+	aaaRbacAnnotation := models.NewAnnotationToCaptureRbacInfo(fmt.Sprintf(models.RnAaaRbacAnnotation, aaaRbacAnnotationAttr.Domain), parentDn, aaaRbacAnnotationAttr)
 
 	err := aciClient.Save(aaaRbacAnnotation)
 	if err != nil {
@@ -116,9 +115,8 @@ func resourceAciAnnotationToCaptureRbacInfoCreate(ctx context.Context, d *schema
 	return resourceAciAnnotationToCaptureRbacInfoRead(ctx, d, m)
 }
 func resourceAciAnnotationToCaptureRbacInfoUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Annotation To Capture RBAC Info: Beginning Update")
+	log.Printf("[DEBUG] AAA Domain Annotation Info: Beginning Update")
 	aciClient := m.(*client.Client)
-	domain := d.Get("domain").(string)
 	parentDn := d.Get("parent_dn").(string)
 
 	aaaRbacAnnotationAttr := models.AnnotationToCaptureRbacInfoAttributes{}
@@ -127,10 +125,10 @@ func resourceAciAnnotationToCaptureRbacInfoUpdate(ctx context.Context, d *schema
 		aaaRbacAnnotationAttr.ChildRegex = ChildRegex.(string)
 	}
 
-	if Domain, ok := d.GetOk("domain"); ok {
-		aaaRbacAnnotationAttr.Domain = Domain.(string)
+	if Domain, ok := d.GetOk("aaa_domain_dn"); ok {
+		aaaRbacAnnotationAttr.Domain = GetMOName(Domain.(string))
 	}
-	aaaRbacAnnotation := models.NewAnnotationToCaptureRbacInfo(fmt.Sprintf(models.RnAaaRbacAnnotation, domain), parentDn, aaaRbacAnnotationAttr)
+	aaaRbacAnnotation := models.NewAnnotationToCaptureRbacInfo(fmt.Sprintf(models.RnAaaRbacAnnotation, aaaRbacAnnotationAttr.Domain), parentDn, aaaRbacAnnotationAttr)
 
 	aaaRbacAnnotation.Status = "modified"
 

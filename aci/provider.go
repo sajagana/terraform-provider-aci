@@ -329,7 +329,10 @@ func Provider() *schema.Provider {
 			"aci_cloud_template_region_detail":             resourceAciCloudTemplateRegion(),
 			"aci_pim_interface_policy":                     resourceAciPIMInterfacePolicy(),
 			"aci_igmp_interface_policy":                    resourceAciIGMPInterfacePolicy(),
-			"aci_role_based_access_control":                resourceAciAnnotationToCaptureRbacInfo(),
+			"aci_aaa_domain_annotation":                    resourceAciAnnotationToCaptureRbacInfo(),
+			"aci_cloud_ldev_to_cloud_subnet":               resourceAciRelationFromCloudLDevToCloudSubnet(),
+			"aci_cloud_l4_l7_device":                       resourceAciCloudL4L7Devices(),
+			"aci_cloud_l4_l7_logical_interface":            resourceAciCloudL4L7LogicalInterface(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -580,7 +583,10 @@ func Provider() *schema.Provider {
 			"aci_cloud_template_region_detail":             dataSourceAciCloudTemplateRegion(),
 			"aci_pim_interface_policy":                     dataSourceAciPIMInterfacePolicy(),
 			"aci_igmp_interface_policy":                    dataSourceAciIGMPInterfacePolicy(),
-			"aci_role_based_access_control":                dataSourceAciAnnotationToCaptureRbacInfo(),
+			"aci_aaa_domain_annotation":                    dataSourceAciAnnotationToCaptureRbacInfo(),
+			"aci_cloud_l4_l7_device_to_cloud_subnet":       dataSourceAciRelationFromCloudLDevToCloudSubnet(),
+			"aci_cloud_l4_l7_device":                       dataSourceAciCloudL4L7Devices(),
+			"aci_cloud_l4_l7_logical_interface":            dataSourceAciCloudL4L7LogicalInterface(),
 		},
 
 		ConfigureFunc: configureClient,
