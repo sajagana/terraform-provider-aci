@@ -2,10 +2,12 @@ package aci
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/ciscoecosystem/aci-go-client/v2/client"
+	"github.com/ciscoecosystem/aci-go-client/v2/container"
 	"github.com/ciscoecosystem/aci-go-client/v2/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -260,6 +262,80 @@ func resourceAciCloudL4L7Devices() *schema.Resource {
 					"network",
 				}, false),
 			},
+
+			"vrf_dn": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"relation_to_cloud_subnet": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"logical_interfaces": {
+				Type: schema.TypeSet,
+				// MinItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_all": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"no",
+								"yes",
+							}, false),
+						},
+						"annotation": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"name_alias": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"end_point_selectors": {
+							Type:     schema.TypeSet,
+							MinItems: 1,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"annotation": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"description": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"match_expression": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"name_alias": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		})),
 	}
 }
@@ -484,7 +560,11 @@ func resourceAciCloudL4L7DevicesImport(d *schema.ResourceData, m interface{}) ([
 
 func resourceAciCloudL4L7DevicesCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Cloud L4-L7 Device: Beginning Creation")
+
 	aciClient := m.(*client.Client)
+
+	getCloudL4L7LogicalInterfaceContainer(d, aciClient)
+
 	desc := d.Get("description").(string)
 	name := d.Get("name").(string)
 	TenantDn := d.Get("tenant_dn").(string)
@@ -1217,6 +1297,8 @@ func resourceAciCloudL4L7DevicesRead(ctx context.Context, d *schema.ResourceData
 	aciClient := m.(*client.Client)
 	dn := d.Id()
 
+	getCloudL4L7LogicalInterfaceContainer(d, aciClient)
+
 	cloudLB, err := getRemoteCloudL4L7LB(aciClient, dn)
 	if err != nil {
 		d.SetId("")
@@ -1249,4 +1331,218 @@ func resourceAciCloudL4L7DevicesDelete(ctx context.Context, d *schema.ResourceDa
 	log.Printf("[DEBUG] %s: Destroy finished successfully", d.Id())
 	d.SetId("")
 	return diag.FromErr(err)
+}
+
+// New Code part
+
+func getCloudL4L7LogicalInterfaceContainer(d *schema.ResourceData, aciClient *client.Client) error {
+	if logicalInterfaces, ok := d.GetOk("logical_interfaces"); ok {
+		logicalInterfacesList := logicalInterfaces.(*schema.Set).List()
+		parsedLogicalInterfaces := make([]map[string]interface{}, 0)
+		for _, logicalInterface := range logicalInterfacesList {
+			logicalInterfaceMap := logicalInterface.(map[string]interface{})
+			cloudLifAttrsMap := map[string]string{
+				"annotation": logicalInterfaceMap["annotation"].(string),
+				"name":       logicalInterfaceMap["name"].(string),
+				"allowAll":   logicalInterfaceMap["allow_all"].(string),
+				"nameAlias":  logicalInterfaceMap["name_alias"].(string),
+			}
+			endPointSelectorsList := make([]interface{}, 0)
+			for _, endPointSelector := range logicalInterfaceMap["end_point_selectors"].(*schema.Set).List() {
+				endPointSelectorInterface := endPointSelector.(map[string]interface{})
+				endPointSelectorMap := map[string]interface{}{
+					models.CloudepselectorClassName: map[string]interface{}{
+						"attributes": map[string]string{
+							"annotation":      endPointSelectorInterface["annotation"].(string),
+							"name":            endPointSelectorInterface["name"].(string),
+							"matchExpression": endPointSelectorInterface["match_expression"].(string),
+							"nameAlias":       endPointSelectorInterface["name_alias"].(string),
+							"descr":           endPointSelectorInterface["description"].(string),
+						},
+					},
+				}
+				endPointSelectorsList = append(endPointSelectorsList, endPointSelectorMap)
+			}
+
+			cloudLifMap := map[string]interface{}{
+				models.CloudLIfClassName: map[string]interface{}{
+					"attributes": cloudLifAttrsMap,
+					"children":   endPointSelectorsList,
+				},
+			}
+			parsedLogicalInterfaces = append(parsedLogicalInterfaces, cloudLifMap)
+		}
+		parsedLogicalInterfacesJsonBytes, err := json.Marshal(parsedLogicalInterfaces)
+
+		BCont, _ := container.ParseJSON(parsedLogicalInterfacesJsonBytes)
+
+		if err != nil {
+			log.Printf("[DEBUG] --------------- parsedLogicalInterfacesJsonBytes err: %v", err)
+		}
+		log.Printf("[DEBUG] --------------- parsedLogicalInterfacesJsonBytes: %v", string(parsedLogicalInterfacesJsonBytes))
+	}
+	return nil
+}
+
+func getCloudL4L7LogicalInterfaceMap(d *schema.ResourceData, aciClient *client.Client) error {
+	log.Printf("[DEBUG] --------------- inside getCloudL4L7LogicalInterfaceMap")
+	// name := d.Get("name").(string)
+	// cloudL4L7DeviceDn := d.Get("cloud_l4_l7_device_dn").(string)
+
+	// leakRoutesCont, leakRoutesErr := container.ParseJSON(leakRoutesJson)
+	// if leakRoutesErr != nil {
+	// 	// return nil, fmt.Errorf("leakRoutes ParseJSON Error: %v", leakRoutesErr)
+	// 	log.Printf("[DEBUG] --------------- leakRoutesErr: %v", leakRoutesErr)
+	// } else {
+	// 	log.Printf("[DEBUG] --------------- leakRoutesCont: %v", leakRoutesCont)
+	// }
+
+	// // A := []byte(`
+	// // {
+	// // 	"A": {
+	// // 		"attributes": {
+	// // 			"name": "AName"
+	// // 		}
+	// // 	}
+	// // }`)
+
+	// // ACont, _ := container.ParseJSON(A)
+
+	// // B := []byte(`
+	// // {
+	// // 	"B": {
+	// // 		"attributes": {
+	// // 			"name": "BName"
+	// // 		}
+	// // 	}
+	// // }`)
+
+	// // BCont, _ := container.ParseJSON(B)
+
+	// // C := []byte(`
+	// // {
+	// // 	"C": {
+	// // 		"attributes": {
+	// // 			"name": "CName"
+	// // 		}
+	// // 	}
+	// // }`)
+
+	// // CCont, _ := container.ParseJSON(C)
+
+	// // BCont.ArrayAppend(CCont.Data(), "B", "children")
+
+	// // AContErr := ACont.ArrayAppend(BCont.Data(), "A", "children")
+	// // if AContErr != nil {
+	// // 	return nil, fmt.Errorf("AContErr Error:: %v", AContErr)
+	// // }
+
+	// log.Printf("[DEBUG] ---------------- vnsAbsGraphCont final value : %v", ACont)
+
+	// return nil
+
+	if logicalInterfaces, ok := d.GetOk("logical_interfaces"); ok {
+
+		logicalInterfacesList := logicalInterfaces.(*schema.Set).List()
+		for _, logicalInterface := range logicalInterfacesList {
+			logicalInterfaceMap := logicalInterface.(map[string]interface{})
+			log.Printf("[DEBUG] --------------- logicalInterfaceMap: %v", logicalInterfaceMap)
+
+			// var nameAlias, allowAll, annotation string
+			// if AllowAll, ok := d.GetOk("allow_all"); ok {
+			// 	allowAll = AllowAll.(string)
+			// }
+
+			// if NameAlias, ok := d.GetOk("name_alias"); ok {
+			// 	nameAlias = NameAlias.(string)
+			// }
+
+			// annotation = "{}"
+			// if Annotation, ok := d.GetOk("annotation"); ok {
+			// 	annotation = Annotation.(string)
+			// }
+
+			// cloudLifMap := map[string]interface{}{
+			// 	"annotation": logicalInterfaceMap["annotation"].(string),
+			// 	"name":       logicalInterfaceMap["name"].(string),
+			// 	"allowAll":   logicalInterfaceMap["allow_all"].(string),
+			// 	"nameAlias":  logicalInterfaceMap["name_alias"].(string),
+			// }
+
+			cloudLifMap := map[string]interface{}{
+				"class_name": models.CloudLIfClassName,
+				"content": map[string]string{
+					"annotation": logicalInterfaceMap["annotation"].(string),
+					"name":       logicalInterfaceMap["name"].(string),
+					"allowAll":   logicalInterfaceMap["allow_all"].(string),
+					"nameAlias":  logicalInterfaceMap["name_alias"].(string),
+				},
+			}
+
+			cloudEPSelectorsList := make([]interface{}, 0)
+			// if endPointSelectors, ok := d.GetOk("end_point_selectors"); ok {
+			// 	endPointSelectorsMap := endPointSelectors.(*schema.Set).List()
+			// 	for _, endPointSelector := range endPointSelectorsMap {
+			// 		endPointSelectorMap := endPointSelector.(map[string]interface{})
+			// 		cloudEndPointSelectorMap := map[string]interface{}{
+			// 			"class_name": models.CloudepselectorClassName,
+			// 			"content": map[string]string{
+			// 				"annotation":      endPointSelectorMap["annotation"].(string),
+			// 				"name":            endPointSelectorMap["name"].(string),
+			// 				"matchExpression": endPointSelectorMap["match_expression"].(string),
+			// 				"nameAlias":       endPointSelectorMap["name_alias"].(string),
+			// 				"descr":           endPointSelectorMap["description"].(string),
+			// 			},
+			// 		}
+			// 		cloudEPSelectorsList = append(cloudEPSelectorsList, cloudEndPointSelectorMap)
+			// 	}
+			// }
+
+			// endPointSelectorsMap := endPointSelectors.(*schema.Set).List()
+			for _, endPointSelector := range logicalInterfaceMap["end_point_selectors"].(*schema.Set).List() {
+				endPointSelectorMap := endPointSelector.(map[string]interface{})
+				cloudEndPointSelectorMap := map[string]interface{}{
+					"class_name": models.CloudepselectorClassName,
+					"content": map[string]string{
+						"annotation":      endPointSelectorMap["annotation"].(string),
+						"name":            endPointSelectorMap["name"].(string),
+						"matchExpression": endPointSelectorMap["match_expression"].(string),
+						"nameAlias":       endPointSelectorMap["name_alias"].(string),
+						"descr":           endPointSelectorMap["description"].(string),
+					},
+				}
+				cloudEPSelectorsList = append(cloudEPSelectorsList, cloudEndPointSelectorMap)
+			}
+
+			// cloudLifMap["children"] = make([]interface{}, 0)
+			cloudLifMap["children"] = cloudEPSelectorsList
+			log.Printf("[DEBUG] --------------- cloudLifMap: %v", cloudLifMap)
+
+			// cloudLifCont, err := preparePayload(models.CloudLIfClassName, cloudLifMap, cloudEPSelectorsList)
+			// if err != nil {
+			// 	return err
+			// }
+
+			// httpRequestPayload, err := aciClient.MakeRestRequest("POST", fmt.Sprintf("%s/%s.json", client.DefaultMOURL, cloudL4L7DeviceDn), cloudLifCont, true)
+			// if err != nil {
+			// 	return err
+			// }
+
+			// respCont, _, err := aciClient.Do(httpRequestPayload)
+			// if err != nil {
+			// 	return err
+			// }
+
+			// err = client.CheckForErrors(respCont, "POST", false)
+			// if err != nil {
+			// 	return err
+			// }
+
+			// d.SetId(cloudL4L7DeviceDn + "/" + fmt.Sprintf(models.RnCloudLIf, name))
+			return nil
+		}
+	}
+
+	// leakInternalSubnetCont, leakInternalSubnetErr := preparePayload(leakInternalSubnetMap["class_name"].(string), leakInternalSubnetMap["content"].(map[string]string), leakToList)
+	return nil
 }

@@ -293,6 +293,7 @@ func resourceAciFunctionNodeCreate(ctx context.Context, d *schema.ResourceData, 
 
 	vnsAbsFuncConnAttr := models.FunctionConnectorAttributes{}
 	vnsAbsFuncConnAttr.Annotation = "{}"
+	vnsAbsFuncConnAttr.DeviceLIfName = "SabUIDivFWIf"
 	vnsAbsFuncConn := models.NewFunctionConnector(fmt.Sprintf("AbsFConn-%s", "consumer"), vnsAbsNode.DistinguishedName, "", vnsAbsFuncConnAttr)
 	err = aciClient.Save(vnsAbsFuncConn)
 	if err != nil {
@@ -380,6 +381,15 @@ func resourceAciFunctionNodeCreate(ctx context.Context, d *schema.ResourceData, 
 
 	}
 
+	AbsNodeToCloudLDevAttributes := models.RelationFromAbsNodeToCloudLDevAttributes{}
+	AbsNodeToCloudLDevAttributes.TDn = "uni/tn-sab_test_tenant/cld-SabUIDeviceNew"
+	l4l7ServiceGraphTemplateDnNodeDN := l4l7ServiceGraphTemplateDn + "/AbsNode-" + name
+	NewAbsNodeToCloudLDevAttributes := models.NewRelationFromAbsNodeToCloudLDev("rsNodeToCloudLDev", l4l7ServiceGraphTemplateDnNodeDN, "description", AbsNodeToCloudLDevAttributes)
+
+	err = aciClient.Save(NewAbsNodeToCloudLDevAttributes)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(vnsAbsNode.DistinguishedName)
 	log.Printf("[DEBUG] %s: Creation finished successfully", d.Id())
 

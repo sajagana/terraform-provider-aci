@@ -318,6 +318,15 @@ func resourceAciL4L7ServiceGraphTemplateCreate(ctx context.Context, d *schema.Re
 	}
 
 	d.SetId(vnsAbsGraph.DistinguishedName)
+
+	// Temp code begins
+	// aciClient.CreateRelationvnsRsNodeToLDevFromFunctionNode("uni/tn-tf_tenant/AbsGraph-second/AbsNode-N1", "uni/tn-tf_tenant/lDevVip-tenant1-ASAv")
+
+	// err = aciClient.Save(vnsAbsTermConn)
+	// if err != nil {
+	// 	return diag.FromErr(err)
+	// }
+	// Temp code ends
 	log.Printf("[DEBUG] %s: Creation finished successfully", d.Id())
 
 	return resourceAciL4L7ServiceGraphTemplateRead(ctx, d, m)

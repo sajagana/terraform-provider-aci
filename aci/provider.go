@@ -330,7 +330,7 @@ func Provider() *schema.Provider {
 			"aci_pim_interface_policy":                     resourceAciPIMInterfacePolicy(),
 			"aci_igmp_interface_policy":                    resourceAciIGMPInterfacePolicy(),
 			"aci_aaa_domain_annotation":                    resourceAciAnnotationToCaptureRbacInfo(),
-			"aci_cloud_ldev_to_cloud_subnet":               resourceAciRelationFromCloudLDevToCloudSubnet(),
+			"aci_cloud_l4_l7_device_to_cloud_subnet":       resourceAciRelationFromCloudLDevToCloudSubnet(),
 			"aci_cloud_l4_l7_device":                       resourceAciCloudL4L7Devices(),
 			"aci_cloud_l4_l7_logical_interface":            resourceAciCloudL4L7LogicalInterface(),
 		},

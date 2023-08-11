@@ -160,8 +160,8 @@ func getCloudL4L7LogicalInterfaceObject(d *schema.ResourceData, aciClient *clien
 
 	cloudEPSelectorsList := make([]interface{}, 0)
 	if endPointSelectors, ok := d.GetOk("end_point_selectors"); ok {
-		endPointSelectorsMap := endPointSelectors.(*schema.Set).List()
-		for _, endPointSelector := range endPointSelectorsMap {
+		endPointSelectorsList := endPointSelectors.(*schema.Set).List()
+		for _, endPointSelector := range endPointSelectorsList {
 			endPointSelectorMap := endPointSelector.(map[string]interface{})
 			cloudEndPointSelectorMap := map[string]interface{}{
 				"class_name": models.CloudepselectorClassName,
