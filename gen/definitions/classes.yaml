@@ -164,3 +164,13 @@ l3extProvLbl:
   ui_locations:
     - "Tenants (infra) -> Networking -> L3Outs -> Policy -> Main -> Provider Label"
   sub_category: "L3Out"
+
+l3extRsLblToInstP:
+  resource_name: "l3out_instance_profile"
+  ui_locations:
+    - "Tenants (infra) -> Networking -> L3Outs -> Policy -> Main -> Provider Label"
+  sub_category: "L3Out"
+  dn_formats:
+    - "uni/tn-{name}/out-{name}/conslbl-{name}/rslblToInstP-[{tDn}]"
+  example_classes:
+    - "l3extConsLbl"
