@@ -70,3 +70,15 @@ resource "aci_l3_outside" "test" {
   relation_l3ext_rs_ectx = aci_vrf.test.id
 }
 `
+
+const testConfigL3extConsLblMinDependencyWithFvTenant = testConfigL3extOutMin + `
+resource "aci_external_network_instance_profile" "test" {
+  l3_outside_dn = aci_l3_outside.test.id
+  name          = "testInstP"
+}
+
+resource "aci_l3out_consumer_label" "test" {
+  parent_dn   = aci_l3_outside.test.id
+  name        = "test_name"
+}
+`
