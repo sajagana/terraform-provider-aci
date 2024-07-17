@@ -35,6 +35,7 @@ mgmtInB:
 rtctrlProfile:
   resource_name: "route_control_profile"
   rn_format: "/prof-{name}"
+  exclude: true
 
 vzOOBBrCP:
   resource_name: "out_of_band_contract"
@@ -357,7 +358,7 @@ fvRsIntraEpg:
   resource_name: "relation_to_intra_epg_contract"
   example_classes:
     - "fvAEPg"
-    - "fvESg" 
+    - "fvESg"
   dn_formats:
     - "uni/tn-{name}/ap-{name}/epg-{name}/rsintraEpg-{tnVzBrCPName}"
     - "uni/tn-{name}/ap-{name}/esg-{name}/rsintraEpg-{tnVzBrCPName}"
@@ -395,3 +396,31 @@ vzBrCP:
 
 vzTaboo:
   resource_name: "taboo_contract"
+
+l3extRsLblToInstP:
+  resource_name: "relation_to_instance_profile"
+  ui_locations:
+    - "Tenants -> Networking -> L3Outs -> Policy -> Main -> Consumer Label"
+  sub_category: "L3Out"
+  dn_formats:
+    - "uni/tn-{name}/out-{name}/conslbl-{name}/rslblToInstP-[{tDn}]"
+  example_classes:
+    - "l3extConsLbl"
+  relationship_classes:
+    - "l3extConsLbl"
+  resource_notes:
+    - "This resource should not be used in combination with the `l3out_consumer_label` nested attributes of other resources for the same object. Doing so will result in unexpected behaviour."
+
+l3extRsLblToProfile:
+  resource_name: "relation_to_route_control_profile"
+  ui_locations:
+    - "Tenants -> Networking -> L3Outs -> Policy -> Main -> Consumer Label"
+  sub_category: "L3Out"
+  dn_formats:
+    - "uni/tn-{name}/out-{name}/conslbl-{name}/rslblToProfile-[{tDn}]-{direction}"
+  example_classes:
+    - "l3extConsLbl"
+  relationship_classes:
+    - "l3extConsLbl"
+  resource_notes:
+    - "This resource should not be used in combination with the `l3out_consumer_label` nested attributes of other resources for the same object. Doing so will result in unexpected behaviour."

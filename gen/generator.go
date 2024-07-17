@@ -710,7 +710,7 @@ func main() {
 	for _, model := range classModels {
 
 		// Only render resources and datasources when the class has a unique identifier or is marked as include in the classes definitions YAML file
-		if len(model.IdentifiedBy) > 0 || model.Include {
+		if (len(model.IdentifiedBy) > 0 || model.Include) && !model.Exclude {
 
 			// All classmodels have been read, thus now the model, child and relational resources names can be set
 			// When done before additional files would need to be opened and read which would slow down the generation process
@@ -857,6 +857,7 @@ type Model struct {
 	HasNamedProperties        bool
 	HasChildNamedProperties   bool
 	Include                   bool
+	Exclude                   bool
 }
 
 type TestDependency struct {
@@ -949,6 +950,7 @@ func (m *Model) setClassModel(metaPath string, child bool, definitions Definitio
 		m.SetClassDnFormats(classDetails)
 		m.SetClassIdentifiers(classDetails)
 		m.SetClassInclude()
+		m.SetClassExclude()
 		m.SetClassAllowDelete(classDetails)
 		m.SetClassContainedByAndParent(classDetails, parents)
 		m.SetClassContains(classDetails)
@@ -1160,6 +1162,19 @@ func (m *Model) SetClassInclude() {
 		for key, value := range classDetails.(map[interface{}]interface{}) {
 			if key.(string) == "include" {
 				m.Include = value.(bool)
+			}
+		}
+	}
+}
+
+func (m *Model) SetClassExclude() {
+	if classDetails, ok := m.Definitions.Classes[m.PkgName]; ok {
+		for key, value := range classDetails.(map[interface{}]interface{}) {
+			if key.(string) == "exclude" {
+				m.Exclude = value.(bool)
+				return
+			} else {
+				m.Exclude = false
 			}
 		}
 	}
@@ -1938,7 +1953,7 @@ func GetTestTargetDn(targets []interface{}, resourceName, targetDnValue string, 
 
 	for _, target := range filteredTargets {
 		targetRelationResourceName := target.(map[interface{}]interface{})["relation_resource_name"].(string)
-		if targetResourceName == targetRelationResourceName || strings.TrimSuffix(targetResourceName, "s") == targetRelationResourceName {
+		if (targetResourceName == targetRelationResourceName || strings.TrimSuffix(targetResourceName, "s") == targetRelationResourceName) || (target.(map[interface{}]interface{})["relation_resource_name"].(string) == target.(map[interface{}]interface{})["target_resource_name"].(string)) {
 			if index > 0 {
 				index = index - 1
 			} else {
