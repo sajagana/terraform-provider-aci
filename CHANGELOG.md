@@ -1,3 +1,160 @@
+# Terraform Provider ACPI - Changelog
+
+All notable changes to this project will be documented in this file.
+
+## 2.0.2 (July 23, 2024)
+
+BREAKING CHANGES:
+- Fix contract filter read and rename entry_annotation and entry_description attributes to annotation and description (#922)
+
+DEPRECATIONS:
+- Changed tn_netflow_monitor_pol_name -> tn_netflow_monitor_pol_dn and add deprecation in acpi_logical_interface_profile (#1005)
+- Deprecate relation_config_rs_export_destination attribute of acpi_configuration_export_policy. use relation_config_rs_remote_path instead. (#1088)
+- Deprecated relation_vz_rs_fwd_r_flt_p_att and relation_vz_rs_rev_r_flt_p_att for acpi_filter and fixed null update by setting the relationships to computed
+- Add deprecation warning for relation_fv_rs_cust_qos_pol in acpi_endpoint_security_group (esg) resource
+- Deprecated the non-functional `relation_vz_rs_graph_att` attribute from `acpi_contract`. use `relation_vz_rs_subj_graph_att` on `acpi_contract_subject` instead.
+
+IMPROVEMENTS:
+- Addition of new resource and data source for l4-l7 concrete device( vnscdev) (#866)
+- Addition of resource and data source for concrete interface (vnscif) (#873)
+- Added set dampening option to the action rule profile resource and datasource (#857)
+- Added action rule profile resource test file and upgraded terraform-plugin-sdk version to v2.16.0(#864)
+- Addition of new resource and data source acpi_l4_l7_device (vnsldevvip) (#861)
+- Addition of new resource and data source for l4-l7 logical interfaces (vnslif) (#865)
+- Addition of resource and data source acpi_l4_l7_redirect_health_group (vnsredirecthealthgroup) (#877)
+- Added new resources and datasources acpi_contract_subject_filter and acpi_contract_subject_one_way_filter and support for one-way contracts in acpi_contract_subject (#839).
+- Addition of resource and data source for acpi_ip_sla_monitoring_policy (#881)
+- Added documentation for acpi_contract_subject_one_way_filter module (#887)
+- Added enable_vm_folder attribute to acpi_vmm_domain (#888)
+- Add data source acpi_l4_l7_deployed_graph_connector_vlan
+- Added next_hop_addr, msnlb and anycast_mac attributes to acpi_subnet (#895)
+- Allow nil return option for datasource acpi_client_end_point (#893)
+- Error output change from client do functions
+- Add resource acpi_bulk_epg_to_static_path for bulk static path creation (#896)
+- Add acpi_vrf_leak_epg_bd_subnet resource and data source (leakroutes, leakinternalsubnet and leakto) (#900)
+- Documentation fix for mode attribute of l3out path attachment
+- Documentation enhancement for dhcp relay label
+- Default to global policy 'uni/infra'
+- Add missing attributes for acpi_fabric_wide_settings (#926)
+- Add support for gcp to the acpi_cloud_context_profile resource (#931)
+- Added acpi_cloud_account, acpi_tenant_to_cloud_account, acpi_cloud_ad and acpi_cloud_credentials resources and datasources for cloud apics. (#912)
+- Add acpi_multicast_pool and acpi_multicast_pool_block resources and datasources
+- Add acpi_lacp_member_policy and acpi_leaf_access_bundle_policy_sub_group resources and datasources (#927)
+- Add subnet group label to the acpi_cloud_subnet resource (#943)
+- Add acpi_cloud_vrf_leak_routes resource and data_source (#953)
+- Removed "required" condition for mac attribute (#951)
+- Add ability to import brownfield virtual networks in acpi_cloud_context_profile (#949)
+- Add dhcp relay gateway to acpi_l3out_path_attachment_secondary_ip (#992)
+- Add enhanced lag policy support to l3out_floating_svi (#966)
+- Add service redirect backup policy (acpi_service_redirect_backup_policy) and l1/l2 destination (acpi_pbr_l1_l2_destination) resources and datasources (#965)
+- Fix resource acpi_l3_outside idempotency and relationship attribute import issues and add mpls_enabled attribute (#973)
+- Add  acpi_cloud_ipsec_tunnel_subnet_pool, acpi_cloud_external_network and acpi_cloud_external_network_vpn_network resources and datasources for cloud apic (#948)
+- Add encap attribute to the relation_l3ext_rs_dyn_path_att attribute of acpi_l3out_floating_svi (#1027)
+- Add new interface configuration resource acpi_interface_config (#1033)
+- Add address_type_controls attribute and summary-only option to the ctrl attribute to acpi_bgp_route_summarization resource (#1040)
+
+fix ctrl from string to list with state upgrader for acpi_bgp_route_summarization
+- Add the ability to associate subnets with a secondary vrf (relation_cloud_rs_subnet_to_ctx) to acpi_cloud_subnet (#1058)
+- Add the ability to disable/enable hub network peering for azure with acpi_cloud_template_region_detail (#1063)
+- Add acpi_pim_interface_policy and acpi_igmp_interface_policy resources and data sources and add relationship attributes for pim/igmp/multicast into acpi_l3_outside and acpi_logical_interface_profile (#1061)
+- Add read-only attributes operational_associated_group, operational_associated_sub_group, port_dn, pc_port_dn in acpi_interface_config (#1081)
+- Add new acpi_bfd_multihop_interface_policy and acpi_bfd_multihop_interface_profile resources  for bfd multihop interface policy and profile. (#1066)
+- Add new acpi_snmp_user resource (#1077)
+- Add acpi_power_supply_redundancy_policy (psuinstpol) resource and data source (#1070)
+- Add bfd_multihop_node_policy resource and data source (#1092)
+- Remove annotation from ignored attributes list in content for resource acpi_rest_managed
+- Add default annotation setting when annotation is not provided for acpi_rest_managed
+- Add forcenew to createonly attributes to allow for object replacement in resource acpi_fabric_node_member
+- Added cloud l4-l7 device resources (acpi_cloud_l4_l7_native_load_balancer and acpi_cloud_l4_l7_third_party_device) and updated acpi_l4_l7_service_graph_template examples (#1097)
+- Add acpi_cloud_service_epg, acpi_cloud_service_endpoint_selector and acpi_cloud_private_link_label resources and datasources (#1096)
+- Mux existing provider with terraform-plugin-framework base for new provider, migrate acpi_annotation resource and datasource to framework provider and add acpi_external_management_network_instance_profile, acpi_external_management_network_subnet, acpi_l3out_consumer_label, acpi_l3out_redistribute_policy, acpi_out_of_band_contract, acpi_pim_route_map_entry, acpi_pim_route_map_policy and acpi_relation_to_consumed_out_of_band_contract resources and data sources (#1113)
+
+co-authored-by: samitab <samitab@cisco.com>
+- Add ip_data_plane_learning attribute to acpi_subnet resource and data source (#1138)
+- Migration of acpi_rest_managed into plugin framework
+- Add support importing for specified children in acpi_rest_managed_resource
+- Allow setting an empty string as default provider level annotation
+- Add support for mac endpoint tags in acpi_endpoint_tag_mac resource and datasource
+- Add support for ip endpoint tags in acpi_endpoint_tag_ip resource and datasource
+- Adding ip parameter to fix resource creation when is_static_ip parameter is set in acpi_cloud_l4_l7_native_load_balancer resource/datasource.
+- Added connector_type and att_notify parameters to 'acpi_function_mode' and fixed documentation for acpi_function_node and and acpi_connection to have a particular format for names and added examples to show these changes.
+- Migration of acpi_tag into plugin framework
+- Added default route leak policy to the acpi_l3_outside resource
+- Added acpi_fallback_route_group and acpi_fallback_member resource
+- Added support for double quotes in password.
+- Made changes to add copy-function node in on-prem apics
+- Fixed examples and documentation after rebasing.
+- Changed is_copy to forcenew, so that when changed the resource is recreated, it will work with adding the right connection.
+- Add acpi_relation_to_fallback_route_group resource and data_source (#1195)
+- Add acpi_l3out_provider_label resource and data-source and updated templates to accept parent_dependency_name from properties.yaml (#1200)
+- Enable toggling of escaping of html characters with escape_html attribute in acpi_rest_managed payloads (#1199)
+- Remove flood_on_encap and prio from schema and change the non required attributes to read-only in acpi_endpoint_security datasource
+- Add daci_netflow_monitor_policy and acpi_relation_to_netflow_exporter resources and datasources (#1208)
+- Added acpi_l3out_node_sid_profile resource and data-source files
+- Update acpi-go-client to version 2.28.2
+- Allow dn based filtering for acpi_client_end_point datasource
+- Add acpi_netflow_record_policy resource and datasource. (#1220)
+- Added attributes pc_tag and scope to acpi_vrf (#1238)
+- Migration of acpi_endpoint_security_group into plugin framework
+- Add datasource and resource for fvfbroute in acpi_vrf_fallback_route and acpi_vrf_fallback_route_group
+- Introduction of a provider level flag to prevent creation of objects that are already existing in apic configuration
+- Display id during plan for plugin framework resources where the dn can be constructed
+
+BUG FIXES:
+- Fix all read() to not fail if object does not exist.
+- Set filter_ids and filter_entry_ids to computed in acpi_contract to fix idempotency issue (#883)
+- Add example for user_security_domain and security_domain_role
+- Fix acpi_imported_contract relation_vz_rs_if to properly set the relationship tdn (#894)
+- Fix idempotency issues in acpi_l3out_bgp_protocol_profile with relation_bgp_rs_best_path_ctrl_pol attribute and add debugger support to provider (#904)
+- Created helper function to find elements that are in oldset but not in newset (#910)
+- Fix acpi_bulk_epg_to_static_path idempotency and default values when optional attributes not provided.
+- Fix ip lookup issue for acpi_client_end_point datasource (#940)
+- Fix relational attributes import issue (#924)
+- Fix  relation_cloud_rs_to_ctx attribute not working in acpi_cloud_context_profile resource (#950)
+- Fix relational attribute import issue in acpi_destination_of_redirected_traffic (#959)
+- Set attribute auth_key as optional in acpi_l3out_ospf_interface_profile (#994)
+- Fix relationship removal issue in acpi_any (#971)
+- Fix update function and validation for relationship attribute "relation_l3ext_rs_subnet_to_profile" in acpi_l3_ext_subnet (#967)
+- Fix resource acpi_external_network_instance_profile idempotency and relationship attribute import issues (#976)
+- Fix firmware policy empty read issue (#1003)
+- Update acpi-go-client to v2.7.3 to fix issue in acpi_cloud_context_profile when optional parameters cloud_brownfield and access_policy_type are not provided.
+- Allow for attributes to be set and idempotency when password has not changed in acpi_local_user (#1001)
+- Fix update issue when enhanced_lag_policy is modified outside of terraform in acpi_epg_to_domain (#1015)
+- Fixed acpi_bgp_peer_connectivity_profile update and read function to work when local_asn is added after creation (#1017)
+- Fix issue where state was deleted if credentials to apic were incorrect (#1006)
+- Fix issue with client end points when endpoint is associated with an esg
+- Modified errorforobjectnotfound() to accommodate the change in state when the object does not exist (#1036)
+- Ensure relational attribute relation_infra_rs_dom_p is not removed when not defined in configuration of resource acpi_attachable_access_entity_profile (#1045)
+- Fixed acpi_contract_subject resource read function call issue
+- Fix for the list element order mismatch issue on the typelist attributes
+- Enabled computed to the relational attributes in the acpi_external_network_instance_profile resource
+- Fixed relation_infra_rs_acc_bndl_subgrp attribute in acpi_access_port_block to gather target dn instead of name
+- Avoid type assertion crash in update when all filters are removed (manually or with acpi_filter resource) from contract in acpi_contract resource
+- Fix relation_fv_rs_node_att by changing it to a block and fix relationship attribute import in acpi_application_epg  (#1083)
+- Modify resource for acpi_bgp_peer_connectivity_profile to normalize ipv6 different formats. (#1101)
+- Fix import issue with leaf_port_dn attribute for acpi_l3out_vpc_member.
+- Remove non configurable properties from post payload when child configuration is present for acpi_rest_managed
+- Ignore changes to relation_l3ext_rs_dyn_path_att.encap when going from unknown to empty to fix idempotency issue in 'l3out_floating_svi' (#1114)
+- Fixed acpi_epg_to_contract import issue and updated documentation
+- Set type attribute for import operation of acpi_static_node_mgmt_address
+- Add missing annotation attribute to acpi_rest_managed datasource
+- Fix example link in documentation
+- Fix regex match to allow matching full dn in acpi_rest_managed (#1147)
+- Fix path for signature calculation for private_key authentication in plugin framework provider resources
+- Error when object not found for datasources acpi_interface_config, acpi_cloud_l4_l7_third_party_device, and acpi_cloud_l4_l7_native_load_balancer
+- Allow import where an semicolon is part of the dn for ipv6 address
+- Fix import functionality for acpi_rest_managed when brackets are present in dn
+- Fix to avoid known after applies for children when they are not provided and not configured on apic
+- Prevent error by setting flood_on_encap and prio for acpi_endpoint_security_group
+- Add error handling in try login function for aaa_user
+
+OTHER:
+- Document relation_bgp_rs_best_path_ctrl_pol
+- Closes #905
+- Update terraform-plugin-sdk and acpi-go-client to latest
+- Fix rest managed resource for pkiexportencryptionkey class
+- Fix intermittent issue with delayed object updates in acpi_rest_managed (#972)
+
 ## 2.15.0 (July 2, 2024)
 DEPRECATIONS:
 - Deprecate the non-functional `relation_vz_rs_graph_att` attribute from `aci_contract`. Use `relation_vz_rs_subj_graph_att` on `aci_contract_subject` instead.
