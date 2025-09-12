@@ -1096,6 +1096,10 @@ vzAny:
     vzRsAnyToProv:
         relation_vz_rs_any_to_prov: relation_from_any_to_provider_contracts.contract_name
 
+
+
+
+
 vzRsAnyToConsIf:
   resource_name: "relation_from_any_to_contract_interface"
   sub_category: "Networking"
@@ -1113,3 +1117,56 @@ vzRsAnyToProv:
   sub_category: "Networking"
   ui_locations:
     - "Tenants -> Networking -> VRFs -> EPG|ESG Collection for VRF -> Provided Contracts"
+
+
+
+l3extSubnet:
+  resource_name: "l3_ext_subnet"
+  sub_category: "Networking"
+  ui_locations:
+    - "Tenants -> Networking -> VRFs -> EPG|ESG Collection for VRF -> Provided Contracts"
+  data_source_has_no_name_identifier: true
+  include: true
+  migration_version: 1
+  migration_blocks:
+    l3extSubnet:
+        external_network_instance_profile_dn: parent_dn
+        # match_t: match_criteria
+        # pref_gr_memb: preferred_group_member
+    l3extRsSubnetToProfile:
+        relation_l3ext_rs_subnet_to_profile: relation_from_l3_ext_subnet_to_route_control_profile
+        tn_rtctrl_profile_name: relation_from_l3_ext_subnet_to_route_control_profile.route_control_profile_name
+        tn_rtctrl_profile_dn: relation_from_l3_ext_subnet_to_route_control_profile.route_control_profile_dn
+        direction: relation_from_l3_ext_subnet_to_route_control_profile.direction
+
+    l3extRsSubnetToRtSumm: # stores only targetDn in the legacy resource
+        relation_l3ext_rs_subnet_to_rt_summ: relation_from_l3_ext_subnet_to_route_summary_configuration
+
+
+rtsumARtSummPol:
+  resource_name: "route_summary_configuration"
+  sub_category: "Networking"
+  ui_locations:
+    - "Tenants -> Networking -> VRFs -> EPG|ESG Collection for VRF -> Provided Contracts"
+
+# relation_l3ext_rs_subnet_to_profile
+l3extRsSubnetToProfile: # => rtctrlProfile
+  resource_name: "relation_from_l3_ext_subnet_to_route_control_profile"
+  sub_category: "Networking"
+  ui_locations:
+    - "Tenants -> Networking -> VRFs -> EPG|ESG Collection for VRF -> Provided Contracts"
+  example_classes:
+    - "l3extSubnet"
+  relationship_classes:
+    - "l3extSubnet"
+
+# relation_l3ext_rs_subnet_to_rt_summ
+l3extRsSubnetToRtSumm: # => rtsumARtSummPol
+  resource_name: "relation_from_l3_ext_subnet_to_route_summary_configuration"
+  sub_category: "Networking"
+  ui_locations:
+    - "Tenants -> Networking -> VRFs -> EPG|ESG Collection for VRF -> Provided Contracts"
+  example_classes:
+    - "l3extSubnet"
+  relationship_classes:
+    - "l3extSubnet"

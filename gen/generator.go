@@ -1276,6 +1276,7 @@ func main() {
 			// Render the testvars file for the resource
 			// First generate run would not mean the file is correct from beginning since some testvars would need to be manually overwritten in the properties definitions YAML file
 			model.SetModelTestDependencies(classModels, definitions)
+			print("\n", model.PkgName, "\n")
 			renderTemplate("testvars.yaml.tmpl", fmt.Sprintf("%s.yaml", model.PkgName), testVarsPath, model)
 			testVarsMap, err := getTestVars(model)
 			if err != nil {

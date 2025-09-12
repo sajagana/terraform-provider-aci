@@ -2653,3 +2653,65 @@ vzRsAnyToProv:
       relation_resource_name: "contract"
       properties:
         name: "contract_name_1"
+
+# relation_l3ext_rs_subnet_to_profile
+l3extRsSubnetToProfile: # => rtctrlProfile
+  overwrites:
+    relation_from_l3_ext_subnet_to_route_control_profile: "relation_to_route_control_profile"
+    tn_rtctrl_profile_name: route_control_profile_name
+    tn_rtctrl_profile_dn: route_control_profile_dn
+
+
+l3extRsSubnetToRtSumm: # stores only targetDn in the legacy resource
+  overwrites:
+    relation_from_l3_ext_subnet_to_route_summary_configuration: relation_to_route_summary_configuration
+
+
+l3extSubnet:
+  parents:
+    - class_name: "l3extInstP"
+      parent_dependency: "l3extOut"
+      parent_dn: "aci_l3_outside.test.id"
+    
+    - class_name: "l3extFabricExtRoutingP"
+      parent_dependency: "fvFabricExtConnP"
+      parent_dn: "aci_fabric_external_connection_policy.test.id"
+
+
+# l3extFabricExtRoutingP
+# l3ext:InstP
+
+
+# fvBD:
+#   read_only_properties:
+#     - "pcTag"
+#   remove_valid_values:
+#     vmac:
+#       - "not-applicable"
+#     pcTag:
+#       - "any"
+#   add_valid_values:
+#     epMoveDetectMode:
+#       - ""
+#   ignore_properties_in_test:
+#     enableRogueExceptMac: "no"
+#   default_values:
+#     hostBasedRouting: "no"
+#   overwrites:
+#     arp_flood: "arp_flooding"
+#   documentation:
+#     OptimizeWanBandwidth: "Optimize WAN Bandwidth for the %s object."
+#   type_overwrites:
+#     epMoveDetectMode: "string"
+#   test_values:
+#     default:
+#       endpoint_move_detection_mode: ""
+#       link_local_ipv6_address: "::"
+#     all:
+#       custom_mac_address: "00:22:BD:F8:19:FE"
+#     legacy:
+#       custom_mac_address: "00:22:BD:F8:19:FE"
+#   parents:
+#     - class_name: "fvTenant"
+#       parent_dependency: ""
+#       parent_dn: "aci_tenant.test.id"
