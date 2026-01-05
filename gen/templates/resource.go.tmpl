@@ -2093,7 +2093,7 @@ func getAndSet{{.ResourceClassName}}Attributes(ctx context.Context, diags *diag.
 							{{- if .HasCustomType}}
 					readData.{{.Name}} = customTypes.New{{.ResourceClassName}}{{.Name}}StringValue(attributeValue.(string))
 							{{- else}}
-					readData.{{- if eq .Name "Id"}}{{.ResourceClassName}}{{ .Name }}{{- else}}{{.Name}}{{- end}} = basetypes.NewStringValue(attributeValue.(string))
+					readData.{{- if eq .Name "Id"}}{{.ResourceClassName}}{{ .Name }}{{- else}}{{.Name}}{{- end}} = {{- if .ValidateAsIPv4OrIPv6 }}basetypes.NewStringValue(net.ParseIP(attributeValue.(string)).String()){{- else }}basetypes.NewStringValue(attributeValue.(string)){{- end }}
 							{{- end}}
 				}
 						{{- end}}

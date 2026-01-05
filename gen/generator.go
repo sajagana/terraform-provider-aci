@@ -1546,6 +1546,7 @@ type Property struct {
 	IdentifiedBy             []interface{}
 	Validators               []interface{}
 	IdentifyProperties       []Property
+	ValidateAsIPv4OrIPv6     bool
 	// Below booleans are used during template rendering to determine correct rendering the go code
 	IsNaming      bool
 	CreateOnly    bool
@@ -2130,6 +2131,10 @@ func (m *Model) SetClassProperties(classDetails interface{}) {
 				IgnoreInTestExampleValue: ignoreInTestExampleValue,
 				ReadOnly:                 slices.Contains(readOnlyProperties, propertyName),
 				HasCustomType:            false,
+			}
+
+			if propertyValue.(map[string]interface{})["validateAsIPv4OrIPv6"] != nil {
+				property.ValidateAsIPv4OrIPv6 = propertyValue.(map[string]interface{})["validateAsIPv4OrIPv6"].(bool)
 			}
 
 			if requiredProperty(GetOverwriteAttributeName(m.PkgName, propertyName, m.Definitions), m.PkgName, m.Definitions) || property.IsNaming {
