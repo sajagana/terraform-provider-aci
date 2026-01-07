@@ -79,6 +79,7 @@ const pubhupDevnetBaseUrl = "https://pubhub.devnetcloud.com/media/model-doc-late
 
 var staticCustomTypeMap = map[string]string{
 	"rounded_percentage": "RoundedPercentage",
+	"ipv6_address":       "IPv6Address",
 }
 
 // Function map used during template rendering in order to call functions from the template
@@ -1152,7 +1153,7 @@ func cleanDirectories() {
 	cleanDirectory(resourcesDocsPath, []string{})
 	cleanDirectory(datasourcesDocsPath, []string{"system.md"})
 	cleanDirectory(testVarsPath, []string{})
-	cleanDirectory("./internal/custom_types", []string{"roundedPercentage.go"})
+	cleanDirectory("./internal/custom_types", []string{"roundedPercentage.go", "ipv6Address.go"})
 
 	// The *ExamplesPath directories are removed and recreated to ensure all previously rendered files are removed
 	// The provider example file is not removed because it contains static provider configuration
@@ -1333,6 +1334,9 @@ func main() {
 					renderTemplate("custom_type.go.tmpl", fmt.Sprintf("%s_%s.go", model.PkgName, propertyName), "./internal/custom_types", property)
 				}
 			}
+
+			print("-----------------", model.ResourceName)
+
 			renderTemplate("resource.go.tmpl", fmt.Sprintf("resource_%s_%s.go", providerName, model.ResourceName), providerPath, model)
 			renderTemplate("datasource.go.tmpl", fmt.Sprintf("data_source_%s_%s.go", providerName, model.ResourceName), providerPath, model)
 
@@ -1534,6 +1538,7 @@ type Property struct {
 	IdentifiedBy             []interface{}
 	Validators               []interface{}
 	IdentifyProperties       []Property
+	ValidateAsIPv4OrIPv6     bool
 	// Below booleans are used during template rendering to determine correct rendering the go code
 	IsNaming                bool
 	CreateOnly              bool
@@ -2108,6 +2113,10 @@ func (m *Model) SetClassProperties(classDetails interface{}) {
 				IgnoreInTestExampleValue: ignoreInTestExampleValue,
 				ReadOnly:                 slices.Contains(readOnlyProperties, propertyName),
 				HasCustomType:            false,
+			}
+
+			if propertyValue.(map[string]interface{})["validateAsIPv4OrIPv6"] != nil {
+				property.ValidateAsIPv4OrIPv6 = propertyValue.(map[string]interface{})["validateAsIPv4OrIPv6"].(bool)
 			}
 
 			if requiredProperty(GetOverwriteAttributeName(m.PkgName, propertyName, m.Definitions), m.PkgName, m.Definitions) || property.IsNaming {

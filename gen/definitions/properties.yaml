@@ -1662,10 +1662,14 @@ fvBD:
       virtual_mac_address: "00:22:BD:F8:19:FB"
       link_local_ipv6_address: "fe80::1"
       unicast_routing: "yes"
+    custom_type:
+      link_local_ipv6_address: "2001:0db8:85a3::7334"
   parents:
     - class_name: "fvTenant"
       parent_dependency: ""
       parent_dn: "aci_tenant.test.id"
+  static_custom_type:
+    llAddr: "ipv6_address"
 
 fvRsABDPolMonPol:
   overwrites:
@@ -2984,3 +2988,7 @@ stormctrlIfPol:
       rate_percentage: "100.000000"
       unicast_burst_rate_percentage: "64.736"
       unicast_rate_percentage: "50.56"
+
+fvVip:
+  static_custom_type:
+    addr: "ipv6_address"
